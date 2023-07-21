@@ -17,26 +17,24 @@ LenovoUtilitiesApplet.prototype = {
 
     _init: function(orientation, panel_height, instance_id) {
         Applet.TextIconApplet.prototype._init.call(this, orientation, panel_height, instance_id);
-
-        // this.set_applet_icon_name("network-vpn");
         this.set_applet_tooltip(_("Configure settings specific to certain Lenovo laptops"));
-        this.set_applet_label("Lenovo Utilities");
+        this.set_applet_label("L");
 		this.update_interval = 5000;
         this.options = {
             "Function Lock": {
-                optionName: "Function Lock",
                 fileName: "fn_lock",
-                state: true
+                state: true,
+                short: "f"
             },
             "USB Charging": {
-                optionName: "USB Charging",
                 fileName: "usb_charging",
-                state: true
+                state: true,
+                short: "u"
             },
             "Conservation Mode": {
-                optionName: "Conservation Mode",
                 fileName: "conservation_mode",
-                state: true
+                state: true,
+                short: "c"
             }
             
         };
@@ -53,15 +51,6 @@ LenovoUtilitiesApplet.prototype = {
             this._contentSection = new PopupMenu.PopupMenuSection();
             this.menu.addMenuItem(this._contentSection);
 
-            // First item: Turn on
-            // let item = new PopupMenu.PopupIconMenuItem("Battery Health: ", "On", St.IconType.FULLCOLOR);
-
-            // item.connect('activate', Lang.bind(this, function() {
-                        
-            //                Util.spawnCommandLine("echo workingCorrectly");
-            //              }));
-            // this.menu.addMenuItem(item);
-
             // Create a toggle switch item
             let item= new PopupMenu.PopupSwitchMenuItem("Conservation Mode", false);
             item.connect('toggled', this._onToggle.bind(this));
@@ -73,7 +62,6 @@ LenovoUtilitiesApplet.prototype = {
             this.menu.addMenuItem(item);
 
             // Create a toggle switch item
-            log(`function lock: ${this.fn_lock}`);
             item= new PopupMenu.PopupSwitchMenuItem("Function Lock", false);
             item.connect('toggled', this._onToggle.bind(this));
             
@@ -156,11 +144,7 @@ LenovoUtilitiesApplet.prototype = {
             // Toggle switch is on
             // Perform actions when the switch is toggled on
             
-            log(`label text1: ${item.label.text}`);
-                    
-            let [success, stdout, stderr] = GLib.spawn_command_line_sync(`/bin/sh -c 'echo 1 > /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/${this.options[item.label.text].fileName}'`);
-            // let [success, stdout, stderr] = GLib.spawn_command_line_sync("/bin/sh -c 'echo 1 > /home/sanjith/Desktop/samp.txt'");
-            // let [success, stdout, stderr] = GLib.spawn_command_line_sync("pkexec echo hello");
+            let [success, stdout, stderr] = GLib.spawn_command_line_sync(`/bin/sh -c 'ideaTweak -${this.options[item.label.text].short} 1'`);
             if (success) {
                 let output = stdout.toString().trim();
                 log("Command Output: " + output);
@@ -174,7 +158,7 @@ LenovoUtilitiesApplet.prototype = {
             // Toggle switch is off
             // Perform actions when the switch is toggled off
 
-            GLib.spawn_command_line_sync(`/bin/sh -c 'echo 0 > /sys/bus/platform/drivers/ideapad_acpi/VPC2004:00/${this.options[item.label.text].fileName}'`);
+            GLib.spawn_command_line_sync(`/bin/sh -c 'ideaTweak -${this.options[item.label.text].short} 0'`);
 
             log('Toggle switch is OFF');
         }
